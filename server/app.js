@@ -34,17 +34,18 @@ const db = new pg.Client({
 });
 
 // MIDDLEWARE
-app.use(cors());
+// app.use(cors());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 app.use(express.json());
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use(express.static("/var/data"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// app.use(express.static("/var/data"));
 
 app.use(passport.initialize());
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "/var/data");
+    cb(null, path.join(__dirname, "uploads"));
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -140,9 +141,12 @@ app.post("/products/:id", async (req, res) => {
     // }
 
     result.rows[0]?.images?.forEach((image) => {
-      fs.unlink(`/var/data/${image}`, (err) => {
-        if (err) throw err;
-        console.log(`uploads/${image} was deleted`);
+      fs.unlink(path.join(__dirname, "uploads", image), (err) => {
+        if (err) {
+          console.error(`Error deleting file ${image}:`, err.message);
+        } else {
+          console.log(`uploads/${image} was deleted`);
+        }
       });
     });
     await db.query("DELETE FROM products WHERE id = $1", [id]);
@@ -181,9 +185,12 @@ app.patch("/listing/:id", upload.any(), async (req, res) => {
     const oldImages = await db.query("SELECT images FROM products WHERE id = $1", [id]);
     if (req.files.length > 0) {
       oldImages?.rows[0]?.images?.forEach((image) => {
-        fs.unlink(`/var/data/${image}`, (err) => {
-          if (err) throw err;
-          console.log(`uploads/${image} was deleted`);
+        fs.unlink(path.join(__dirname, "uploads", image), (err) => {
+          if (err) {
+            console.error(`Error deleting file ${image}:`, err.message);
+          } else {
+            console.log(`uploads/${image} was deleted`);
+          }
         });
       });
     }
@@ -301,7 +308,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://seller-project-server-1.onrender.com/auth/google/callback",
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
       session: false,
       scope: ["profile", "email"],
     },

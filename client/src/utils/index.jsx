@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const serverURL = "https://seller-project-server-1.onrender.com";
+export const serverURL = "http://localhost:3000";
 
 export const customFetch = axios.create({
   baseURL: serverURL,
