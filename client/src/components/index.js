@@ -1,0 +1,9 @@
+export { default as Navbar } from "./Navbar";
+export { default as SearchForm } from "./SearchForm.jsx";
+export { default as CategoriesGrid } from "./CategoriesGrid.jsx";
+export { default as Hero } from "./Hero.jsx";
+export { default as Footer } from "./Footer.jsx";
+export { default as Filters } from "./Filters.jsx";
+export { default as ProductsContainer } from "./ProductsContainer.jsx";
+export { default as UserInfo } from "./UserInfo.jsx";
+export { default as Pagination } from "./Pagination.jsx";
